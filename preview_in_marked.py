@@ -14,6 +14,9 @@
 
 import sublime
 import sublime_plugin
+import subprocess
+
+from . import write_to_pasteboard
 
 # Shim our locally-installed version of rubicon-objc
 import os
@@ -22,20 +25,14 @@ site.addsitedir(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), 'third_party'))
 
 from rubicon.objc import ObjCClass
-from rubicon.objc import objc_const
-from rubicon.objc.runtime import load_library
 
-CoreServices = load_library('CoreServices')
 NSURL = ObjCClass('NSURL')
-NSPasteboard = ObjCClass('NSPasteboard')
 NSWorkspace = ObjCClass('NSWorkspace')
-kUTTypeUTF8PlainText = objc_const(CoreServices, 'kUTTypeUTF8PlainText')
 
 
 class PreviewInMarked(sublime_plugin.ViewEventListener):
     def __init__(self, view):
         super(PreviewInMarked, self).__init__(view)
-        self.pb_ = NSPasteboard.pasteboardWithName('mkStreamingPreview')
         self.setup_ = True
 
     def on_init(self):
@@ -51,16 +48,15 @@ class PreviewInMarked(sublime_plugin.ViewEventListener):
             return
 
         raw_string = self.view.substr(sublime.Region(0, self.view.size()))
-        self.pb_.clearContents()
-
-        # Marked 2 hangs for a minute on my machine after receiving a file URL,
-        # so only send one when switching which file is being streamed.
-        # http://support.markedapp.com/discussions/problems/161844-streaming-preview-beachballs-when-url-is-supplied
         if self.view.file_name() and self.setup_:
-            base_url = NSURL.fileURLWithPath(self.view.file_name())
-            self.pb_.writeObjects([raw_string, base_url])
+            # Sending an NSURL to the Pasteboard from Python freezes receiving
+            # apps if we stay open, so don't. Send it from a subprocess instead.
+            subprocess.run([
+                write_to_pasteboard.__file__, raw_string,
+                self.view.file_name()
+            ])
         else:
-            self.pb_.setString(raw_string, forType=kUTTypeUTF8PlainText)
+            write_to_pasteboard.WriteToPasteboard(raw_string)
 
         self.setup_ = False
 
