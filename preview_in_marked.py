@@ -57,6 +57,10 @@ class PreviewInMarked(sublime_plugin.ViewEventListener):
         else:
             write_to_pasteboard.WriteToPasteboard(raw_string)
 
+        if self.setup_:
+            NSWorkspace.sharedWorkspace.openURL(
+                NSURL.URLWithString(
+                    'x-marked://stream?x-success=com.sublimetext.4'))
         self.setup_ = False
 
 
