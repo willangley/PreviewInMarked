@@ -12,19 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import site
 import sublime
 import sublime_plugin
 import subprocess
 
 from . import write_to_pasteboard
 
-# Shim our locally-installed version of rubicon-objc
-import os
-import site
 site.addsitedir(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), 'third_party'))
-
 from rubicon.objc import ObjCClass
+
 
 NSURL = ObjCClass('NSURL')
 NSWorkspace = ObjCClass('NSWorkspace')
