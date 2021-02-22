@@ -16,7 +16,6 @@ import os
 import site
 import sublime
 import sublime_plugin
-import subprocess
 
 from . import write_to_pasteboard
 
@@ -24,9 +23,12 @@ site.addsitedir(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), 'third_party'))
 from rubicon.objc import ObjCClass
 
-
 NSURL = ObjCClass('NSURL')
 NSWorkspace = ObjCClass('NSWorkspace')
+
+
+def plugin_loaded():
+    write_to_pasteboard.LaunchPasteboardWriter(pasteboard='mkStreamingPreview')
 
 
 class PreviewInMarked(sublime_plugin.ViewEventListener):
@@ -48,12 +50,8 @@ class PreviewInMarked(sublime_plugin.ViewEventListener):
 
         raw_string = self.view.substr(sublime.Region(0, self.view.size()))
         if self.view.file_name() and self.setup_:
-            # Sending an NSURL to the Pasteboard from Python freezes receiving
-            # apps if we stay open, so don't. Send it from a subprocess instead.
-            subprocess.run([
-                write_to_pasteboard.__file__, raw_string,
-                self.view.file_name()
-            ])
+            write_to_pasteboard.WriteToPasteboard(raw_string,
+                                                  self.view.file_name())
         else:
             write_to_pasteboard.WriteToPasteboard(raw_string)
 
