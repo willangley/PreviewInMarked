@@ -57,7 +57,7 @@ Licensed under the [Apache-2.0 License](LICENSE). Bundles a copy of
 This is not actively supported by Google; it is just code that happens to be
 owned by Google.
 
-[the-code]: /willangley/PreviewInMarked/archive/main.zip
+[the-code]: https://github.com/willangley/PreviewInMarked/archive/main.zip
 
 [marked-2]: https://marked2app.com/
 [package-control]: https://packagecontrol.io/
