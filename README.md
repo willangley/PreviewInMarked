@@ -1,7 +1,7 @@
 # PreviewInMarked
 
-> :warning: This is pre-alpha software! I'm sharing this early so I can [get
-> help][problem-161844] with it.
+> :warning: This is pre-alpha software! It has seen a few hours of use, tops;
+> expect a bumpy ride if you install it now.
 
 ![screenshot](docs/screenshot.png)
 
@@ -25,8 +25,6 @@ upload it to [Package Control][package-control].
 
 ## Use
 
-1. Open Marked 2
-1. In Marked 2, click `Preview > Streaming Preview`
 1. Open Sublime Text
 1. Open or create a Markdown file in Sublime Text
 1. Press <kbd>⌘ Command</kbd> + <kbd>⇧ Shift</kbd> + <kbd>P</kbd> to open the
@@ -34,6 +32,19 @@ upload it to [Package Control][package-control].
 1. Choose `Preview In Marked` and press <kbd>↩︎ Return</kbd>
 
 Updates will stream to Marked 2 as you type.
+
+## Configuration
+
+PreviewInMarked is configurable with the usual
+`Packages/User/PreviewInMarked.sublime-settings` file. There's one setting,
+which controls the refresh frequency for previews; by default, it's:
+
+```jsonc
+{
+   // Stream at most one update to Marked every `debounce_seconds`.
+   "debounce_seconds": 1.0
+}
+```
 
 ## License
 
@@ -48,7 +59,6 @@ owned by Google.
 
 [marked-2]: https://marked2app.com/
 [package-control]: https://packagecontrol.io/
-[problem-161844]: http://support.markedapp.com/discussions/problems/161844-streaming-preview-beachballs-when-url-is-supplied
 [rubicon-objc]: https://beeware.org/project/projects/bridges/rubicon/
 [streaming-preview]: https://marked2app.com/help/Streaming_Preview.html
 [sublime-text-4]: https://forum.sublimetext.com/t/is-it-possible-to-work-with-the-dev-st4/50445/4

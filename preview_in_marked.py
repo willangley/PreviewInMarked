@@ -16,6 +16,7 @@ import os
 import site
 import sublime
 import sublime_plugin
+import threading
 
 from . import write_to_pasteboard
 
@@ -35,6 +36,11 @@ class PreviewInMarked(sublime_plugin.ViewEventListener):
     def __init__(self, view):
         super(PreviewInMarked, self).__init__(view)
         self.setup_ = True
+        self.debounce_seconds_ = (
+            sublime.load_settings('PreviewInMarked.sublime-settings').get(
+                'debounce_seconds', 1.0))
+        self.update_pending_ = False
+        self.timer_ = None
 
     def on_init(self):
         self.view.settings().add_on_change('preview_in_marked',
@@ -48,6 +54,30 @@ class PreviewInMarked(sublime_plugin.ViewEventListener):
         if not self.view.settings().get('preview_in_marked', False):
             return
 
+        if self.setup_:
+            self.show_preview()
+        else:
+            self.update_pending_ = True           
+
+        if self.timer_:
+            self.timer_.cancel()
+        self.start_timer()
+
+    def start_timer(self):
+        self.timer_ = threading.Timer(self.debounce_seconds_,
+                                      self.handle_timer)
+        self.timer_.start()
+
+    def handle_timer(self):
+        if not self.update_pending_:
+            self.timer_ = None
+            return
+
+        self.show_preview()
+        self.update_pending_ = False
+        self.start_timer()
+
+    def show_preview(self):
         raw_string = self.view.substr(sublime.Region(0, self.view.size()))
         if self.view.file_name() and self.setup_:
             write_to_pasteboard.WriteToPasteboard(raw_string,

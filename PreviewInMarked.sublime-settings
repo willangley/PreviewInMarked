@@ -1,0 +1,4 @@
+{
+	// Stream at most one update to Marked every `debounce_seconds`.
+	"debounce_seconds": 1.0
+}
