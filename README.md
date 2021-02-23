@@ -18,7 +18,7 @@ pre-release software to try this out.
 Installation is manual-only for now. Once this works reliably maaaaybe I'll
 upload it to [Package Control][package-control].
 
-1. Download the ZIP file from GitHub
+1. Download [the code][the-code] from GitHub
 1. Open Sublime Text
 1. Click `Sublime Text > Preferences > Browse Packages`
 1. Drag the ZIP file into the Packages folder
@@ -56,6 +56,8 @@ Licensed under the [Apache-2.0 License](LICENSE). Bundles a copy of
 
 This is not actively supported by Google; it is just code that happens to be
 owned by Google.
+
+[the-code]: /willangley/PreviewInMarked/archive/main.zip
 
 [marked-2]: https://marked2app.com/
 [package-control]: https://packagecontrol.io/
