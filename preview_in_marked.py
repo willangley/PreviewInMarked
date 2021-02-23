@@ -38,9 +38,9 @@ class PreviewInMarked(sublime_plugin.ViewEventListener):
 
     def on_init(self):
         self.view.settings().add_on_change('preview_in_marked',
-                                           self.on_modified)
+                                           self.handle_settings_change)
 
-    def on_settngs_change(self):
+    def handle_settings_change(self):
         self.setup_ = True
         self.on_modified()
 
