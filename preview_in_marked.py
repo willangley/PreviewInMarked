@@ -35,10 +35,13 @@ def plugin_loaded():
 class PreviewInMarked(sublime_plugin.ViewEventListener):
     def __init__(self, view):
         super(PreviewInMarked, self).__init__(view)
-        self.setup_ = True
         self.debounce_seconds_ = (
             sublime.load_settings('PreviewInMarked.sublime-settings').get(
                 'debounce_seconds', 1.0))
+
+        # All non-constant variables in this class are guarded by self.lock_
+        self.lock_ = threading.RLock()
+        self.setup_ = True
         self.update_pending_ = False
         self.timer_ = None
 
@@ -47,49 +50,61 @@ class PreviewInMarked(sublime_plugin.ViewEventListener):
                                            self.handle_settings_change)
 
     def handle_settings_change(self):
-        self.setup_ = True
-        self.on_modified()
+        with self.lock_:
+            self.stop_timer()
+            self.setup_ = True
+            self.on_modified()
 
     def on_modified(self):
         if not self.view.settings().get('preview_in_marked', False):
             return
 
-        if self.setup_:
-            self.show_preview()
-        else:
-            self.update_pending_ = True           
+        with self.lock_:
+            if self.setup_:
+                self.show_preview()
+            else:
+                self.update_pending_ = True
 
-        if self.timer_:
-            self.timer_.cancel()
-        self.start_timer()
+            self.start_timer()
 
     def start_timer(self):
-        self.timer_ = threading.Timer(self.debounce_seconds_,
-                                      self.handle_timer)
-        self.timer_.start()
+        with self.lock_:
+            self.stop_timer()
+            self.timer_ = threading.Timer(self.debounce_seconds_,
+                                          self.handle_timer)
+            self.timer_.start()
 
     def handle_timer(self):
-        if not self.update_pending_:
-            self.timer_ = None
-            return
+        with self.lock_:
+            if not self.update_pending_:
+                self.stop_timer()
+                return
 
-        self.show_preview()
-        self.update_pending_ = False
-        self.start_timer()
+            self.show_preview()
+            self.update_pending_ = False
+            self.start_timer()
+
+    def stop_timer(self):
+        with self.lock_:
+            if not self.timer_:
+                return
+            self.timer_.cancel()
+            self.timer_ = None
 
     def show_preview(self):
-        raw_string = self.view.substr(sublime.Region(0, self.view.size()))
-        if self.view.file_name() and self.setup_:
-            write_to_pasteboard.WriteToPasteboard(raw_string,
-                                                  self.view.file_name())
-        else:
-            write_to_pasteboard.WriteToPasteboard(raw_string)
+        with self.lock_:
+            raw_string = self.view.substr(sublime.Region(0, self.view.size()))
+            if self.view.file_name() and self.setup_:
+                write_to_pasteboard.WriteToPasteboard(raw_string,
+                                                      self.view.file_name())
+            else:
+                write_to_pasteboard.WriteToPasteboard(raw_string)
 
-        if self.setup_:
-            NSWorkspace.sharedWorkspace.openURL(
-                NSURL.URLWithString(
-                    'x-marked://stream?x-success=com.sublimetext.4'))
-        self.setup_ = False
+            if self.setup_:
+                NSWorkspace.sharedWorkspace.openURL(
+                    NSURL.URLWithString(
+                        'x-marked://stream?x-success=com.sublimetext.4'))
+            self.setup_ = False
 
 
 class PreviewInMarkedCommand(sublime_plugin.TextCommand):
