@@ -33,8 +33,8 @@ from rubicon.objc.runtime import load_library
 
 AppKit = load_library('AppKit')
 CoreServices = load_library('CoreServices')
-NSURL = ObjCClass('NSURL')
-NSPasteboard = ObjCClass('NSPasteboard')
+NSURL = ObjCClass('NSURL')  # Framework: Foundation
+NSPasteboard = ObjCClass('NSPasteboard')  # Framework: AppKit
 kUTTypeUTF8PlainText = objc_const(CoreServices, 'kUTTypeUTF8PlainText')
 
 parser = argparse.ArgumentParser(

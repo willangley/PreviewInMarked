@@ -24,8 +24,9 @@ site.addsitedir(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), 'third_party'))
 from rubicon.objc import ObjCClass
 
-NSURL = ObjCClass('NSURL')
-NSWorkspace = ObjCClass('NSWorkspace')
+NSURL = ObjCClass('NSURL')  # Framework: Foundation
+NSWorkspace = ObjCClass(
+    'NSWorkspace')  # Framework: AppKit, from write_to_pasteboard
 
 
 def plugin_loaded():
